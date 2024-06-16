@@ -16,7 +16,7 @@ const App: React.FC<AppProp> = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="product" element={<ProductPage />} />
-          {/* <Route path="product/create" element={<ProductPage />} /> */}
+          <Route path="product/create" element={<ProductPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </MainLayout>
