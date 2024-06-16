@@ -14,7 +14,7 @@ const ProductPage: React.FC<ProductPageProps> = ({}) => {
   const [products, setProducts] = useState([] as ProductItem[]);
   useEffect(() => {
     axios
-      .get<ProductItem[]>("http://localhost:3000/products")
+      .get<ProductItem[]>("http://localhost:3005/products")
       .then(function (resp) {
         setProducts(resp.data);
       })
