@@ -1,11 +1,12 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Dispatch, SetStateAction } from "react";
 import FormInput from "../components/form-input";
-import { useLocation } from "react-router-dom";
-
+import { useLocation, useNavigate } from "react-router-dom";
+import { useId } from "react"
+import { addProduct } from "../services/products";
 type ProductPageProps = {};
 
-type ProductItem = {
+export type ProductItem = {
   id: string;
   title: string;
   price: number;
@@ -15,27 +16,42 @@ type FomrInputsType = {
   lable: string;
   name: string;
   type: string;
+  value: string | number;
+  setValue: Dispatch<SetStateAction<string>>;
 };
-const FormInputs: FomrInputsType[] = [
-  {
-    lable: "Product name: ",
-    name: "productName",
-    type: "text",
-  },
-  {
-    lable: "Product price: ",
-    name: "productPrice",
-    type: "number",
-  },
-  {
-    lable: "Product quantity: ",
-    name: "productQuantity",
-    type: "number",
-  },
-];
 const ProductPage: React.FC<ProductPageProps> = ({}) => {
   const { pathname } = useLocation();
   const [products, setProducts] = useState([] as ProductItem[]);
+  const [productName, setProductName] = useState<string>("")
+  const [productPrice, setProductPrice] = useState<string>("");
+  const [productQuantity, setProductQuantity] = useState<string>("");
+  const navigate = useNavigate();
+  const productId = useId() as string;
+
+  const FormInputs: FomrInputsType[] = [
+    {
+      lable: "Product name: ",
+      name: "productName",
+      type: "text",
+      value: productName,
+      setValue: setProductName
+    },
+    {
+      lable: "Product price: ",
+      name: "productPrice",
+      type: "number",
+      value: productPrice,
+      setValue: setProductPrice
+    },
+    {
+      lable: "Product quantity: ",
+      name: "productQuantity",
+      type: "number",
+      value: productQuantity,
+      setValue: setProductQuantity
+    },
+  ];
+
   useEffect(() => {
     axios
       .get<ProductItem[]>("http://localhost:3005/products")
@@ -45,8 +61,21 @@ const ProductPage: React.FC<ProductPageProps> = ({}) => {
       .catch(function (error) {
         console.log(error);
       });
-  }, []);
-
+  }, [products]);
+  function submitHandler (event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const product: ProductItem = {
+      id: productId,
+      title: productName,
+      price: parseFloat(productPrice),
+      qty: parseFloat(productQuantity)
+    }
+    addProduct(product)
+    setProductName("");
+    setProductPrice("");
+    setProductQuantity("");
+    navigate("/product")
+  }
   return (
     <div>
       {pathname === "/product" && (
@@ -63,7 +92,7 @@ const ProductPage: React.FC<ProductPageProps> = ({}) => {
       )}
       {pathname === "/product/create" && (
         <>
-          <form action="" className="w-1/4">
+          <form className="w-1/4" onSubmit={submitHandler}>
             <div className="text-center">
               <h3>Create a new product</h3>
             </div>
@@ -72,10 +101,14 @@ const ProductPage: React.FC<ProductPageProps> = ({}) => {
                 lable={input.lable}
                 name={input.name}
                 type={input.type}
+                value={input.value}
+                setValue={input.setValue}
               />
             ))}
             <div className="text-right">
-              <button className="mt-4 bg-green-600 text-green-50 p-2 rounded-xl hover:bg-green-800 ">submit</button>
+              <button className="mt-4 bg-green-600 text-green-50 p-2 rounded-xl hover:bg-green-800 ">
+                submit
+              </button>
             </div>
           </form>
         </>
